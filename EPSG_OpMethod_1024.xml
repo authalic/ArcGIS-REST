@@ -1,0 +1,102 @@
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+ <gml:OperationMethod xmlns:epsg="urn:x-ogp:spec:schema-xsd:EPSG:1.0:dataset" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink" gml:id="iogp-method-1024">
+  <gml:metaDataProperty>
+    <epsg:CommonMetaData>
+      <epsg:informationSource>OGP Guidance Note 7-2</epsg:informationSource>
+      <epsg:revisionDate>2017-09-22</epsg:revisionDate>
+      <epsg:changes>
+        <epsg:changeID xlink:href="urn:ogc:def:change-request:EPSG::2008.114" />
+        <epsg:changeID xlink:href="urn:ogc:def:change-request:EPSG::2009.023" />
+        <epsg:changeID xlink:href="urn:ogc:def:change-request:EPSG::2017.030" />
+      </epsg:changes>
+      <epsg:show>true</epsg:show>
+      <epsg:isDeprecated>false</epsg:isDeprecated>
+    </epsg:CommonMetaData>
+  </gml:metaDataProperty>
+  <gml:metaDataProperty>
+    <epsg:CoordinateOperationMethodMetaData>
+      <epsg:isOperationReversible>true</epsg:isOperationReversible>
+      <epsg:signReversal changeSign="false" xlink:href="urn:ogc:def:parameter:EPSG::8801" />
+      <epsg:signReversal changeSign="false" xlink:href="urn:ogc:def:parameter:EPSG::8802" />
+      <epsg:signReversal changeSign="false" xlink:href="urn:ogc:def:parameter:EPSG::8806" />
+      <epsg:signReversal changeSign="false" xlink:href="urn:ogc:def:parameter:EPSG::8807" />
+      <epsg:example>
+      
+            For Projected Coordinate Reference System: WGS 84 / Pseudo-Mercator
+
+            Parameters:
+            Ellipsoid:	WGS 84	a = 6378137.0 metres		1/f = 298.2572236
+                        
+            Latitude of natural origin (latO) = 0Â°00'00.000"N = 0.0 rad
+            Longitude of natural origin (lonO) = 0Â°00'00.000"E = 0.0 rad
+            False easting (FE) = 0.00 metres	
+            False northing (FN) = 0.00 metres	
+
+            Forward calculation for the same coordinate values as used for the Mercator (1SP) (Spherical) example (method code 9841): 
+            Latitude (lat) = 24Â°22'54.433"N	= 0.425542460 rad
+            Longitude (lon) = 100Â°20'00.000"W = -1.751147016 rad
+
+                R  = 6378137.0
+            whence 
+                E = -11 169 055.58 m
+                N =   2 800 000.00 m
+            and 
+                h  = 1.1034264
+                k  = 1.0972914
+                omega = 0Â°19'10.01"
+
+
+            Reverse calculation for a point 10km north on the grid (-11 169 055.58 m E, 2 810 000.00m N) first gives:
+                D = -0.44056752
+
+            Then	Latitude (lat) = 0.426970023 rad = 24Â°27'48.889"N
+                Longitude (lon) = -1.751147016 rad = 100Â°20'00.000"W
+                
+    </epsg:example>
+    </epsg:CoordinateOperationMethodMetaData>
+  </gml:metaDataProperty>
+  <gml:identifier codeSpace="IOGP">urn:ogc:def:method:EPSG::1024</gml:identifier>
+  <gml:name>Popular Visualisation Pseudo Mercator</gml:name>
+  <gml:remarks>Applies spherical formulas to the ellipsoid. As such does not have the properties of a true Mercator projection.</gml:remarks>
+  <gml:formula>Note: These formulas have been transcribed from EPSG Guidance Note #7-2. Users are encouraged to use that document rather than the text which follows as reference because limitations in the transcription will be avoided.
+
+This method is utilised by some popular web mapping and visualisation applications. It applies standard Mercator (Spherical) formulas (method code 1026) to ellipsoidal coordinates and the sphere radius is taken to be the semi-major axis of the ellipsoid. This approach only approximates to the more rigorous application of ellipsoidal formulas to ellipsoidal coordinates (as given in EPSG dataset coordinate operation method codes 9804 and 9805).  Unlike either the spherical or ellipsoidal Mercator projection methods, this method is not conformal: scale factor varies as a function of azimuth, which creates angular distortion. Despite angular distortion there is no convergence in the meridian. 
+
+The formulas to derive projected Easting and Northing coordinates from ellipsoidal latitude (lat) and longitude (lon) first derive the radius of the sphere (R) from:
+	R = a
+
+Then applying spherical Mercator formulae:
+
+	E = FE + R(lon - lonO)              
+	N = FN + R ln[tan(pi/4 + lat/2)]                   
+where FE and FN are false easting and false nothing at the projection origin, other symbols are as listed above and logarithms are natural.
+
+If latitude lat = 90Âº, N is infinite. The above formula for N will fail near to the pole, and should not be used poleward of 88Âº.
+
+The reverse formulas to derive latitude and longitude on the sphere from E and N values are:
+	D = -(N-FN)/R = (FN-N)/R
+	lat = pi/2 - 2 atan(e^D) where e=base of natural logarithms, 2.7182818...
+	lon = [(E - FE)/R] + lonO
+
+
+If q_alpha is the scale factor at a given azimuth alpha, it is a function of R', the radius of curvature at that azimuth derived from:
+	R' = rho nu / (nu cos^2alpha + rho sin^2alpha)
+	q_alpha = R / (R' cos lat)
+where rho and nu are the radii of curvature of the ellipsoid at latitude lat in the plane of the meridian and perpendicular to the meridian respectively;
+rho = a(1 - e^2)/(1 - e^2 sin^2(lat))^3/2
+nu = a /(1 - e^2 sin^2(lat))^1/2
+
+Then when the azimuth is 0Âº, 180Âº, 90Âº or 270Âº the scale factors in the meridian (h) and on the parallel (k) are:
+	q_0 = q_180  = h = R / (rho cos(lat))
+	q_90 = q_270 = k = R / (nu cos(lat))
+which demonstrates the non-conformallity of the Pseudo Mercator method.
+
+Maximum angular distortion omega is a function of latitude and is found from:
+	omega = 2 asin{[ABS(h - k)] / (h + k)}</gml:formula>
+  <gml:generalOperationParameter xlink:href="urn:ogc:def:parameter:EPSG::8801" />
+  <gml:generalOperationParameter xlink:href="urn:ogc:def:parameter:EPSG::8802" />
+  <gml:generalOperationParameter xlink:href="urn:ogc:def:parameter:EPSG::8806" />
+  <gml:generalOperationParameter xlink:href="urn:ogc:def:parameter:EPSG::8807" />
+</gml:OperationMethod>

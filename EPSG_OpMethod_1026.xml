@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <gml:OperationMethod xmlns:epsg="urn:x-ogp:spec:schema-xsd:EPSG:1.0:dataset" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink" gml:id="ogp-method-1026">
+   <gml:metaDataProperty>
+      <epsg:CommonMetaData>
+         <epsg:informationSource>EPSG guidance note #7-2, http://www.epsg.org</epsg:informationSource>
+         <epsg:revisionDate>2009-06-07</epsg:revisionDate>
+         <epsg:changes>
+            <epsg:changeID xlink:href="urn:ogc:def:change-request:EPSG::2008.114" />
+            <epsg:changeID xlink:href="urn:ogc:def:change-request:EPSG::2009.023" />
+         </epsg:changes>
+         <epsg:show>true</epsg:show>
+         <epsg:isDeprecated>false</epsg:isDeprecated>
+      </epsg:CommonMetaData>
+   </gml:metaDataProperty>
+   <gml:metaDataProperty>
+      <epsg:CoordinateOperationMethodMetaData>
+         <epsg:isOperationReversible>true</epsg:isOperationReversible>
+         <epsg:signReversal changeSign="false" xlink:href="urn:ogc:def:parameter:EPSG::8801" />
+         <epsg:signReversal changeSign="false" xlink:href="urn:ogc:def:parameter:EPSG::8802" />
+         <epsg:signReversal changeSign="false" xlink:href="urn:ogc:def:parameter:EPSG::8806" />
+         <epsg:signReversal changeSign="false" xlink:href="urn:ogc:def:parameter:EPSG::8807" />
+         <epsg:example>
+         
+                For Projected Coordinate Reference System: World Spherical Mercator (Note: CRS not in EPSG dataset)
+
+                Parameters:
+                Sphere:	R = 6371007.0 metres
+                            
+                Latitude of natural origin (latO)  = 0Â°00'00.000"N = 0.0 rad
+                Longitude of natural origin (lonO) = 0Â°00'00.000"E = 0.0 rad
+                False easting (FE) = 0.00 metres	
+                False northing (FN) = 0.00 metres	
+
+                Forward calculation for: 
+                Latitude (lat)  = 24Â°22'54.433"   = 0.425542460 rad
+                Longitude (lon) = 100Â°20'00.000"W = -1.751147016 rad
+
+                whence 
+                    E = -11 156 569.90 m
+                    N =   2 796 869.94 m
+
+                Reverse calculation for the same point (-11 156 569.90 m E, 2 796 869.94m N) first gives:
+                    D = -0.438999665
+
+                Then	Latitude (lat) = 0.425542460 rad = 24Â°22'54.433"N
+                    Longitude (lon) = -1.751147016 rad = 100Â°20'00.000"W
+    
+    </epsg:example>
+    </epsg:CoordinateOperationMethodMetaData>
+   </gml:metaDataProperty>
+   <gml:identifier codeSpace="OGP">urn:ogc:def:method:EPSG::1026</gml:identifier>
+   <gml:name>Mercator (Spherical)</gml:name>
+   <gml:formula>Note: These formulas have been transcribed from EPSG Guidance Note #7-2. Users are encouraged to use that document rather than the text which follows as reference because limitations in the transcription will be avoided.
+
+The formulas to derive projected Easting and Northing coordinates from spherical latitude lat and longitude lon are:
+	E = FE   R (lon - lonO)              
+	N = FN   R ln[tan(pi/4   lat/2)]                   
+where lonO is the longitude of natural origin and FE and FN are false easting and false nothing.
+
+R is the radius of the sphere and will normally be one of the CRS parameters. If the figure of the earth used is an ellipsoid rather than a sphere then R should be calculated as the radius of the conformal sphere at the projection origin at latitude latO using the formula for Rc given in EPSG Guidance Note 7-2, section 1.2, table 3. Note however that if applying spherical formula to ellipsoidal coordinates, the projection properties are not preserved.
+
+If latitude lat = 90Âº, N is infinite. The above formula for N will fail near to the pole, and should not be used poleward of 88Âº.
+
+The reverse formulas to derive latitude and longitude on the sphere from E and N values are:
+	D = -(N - FN)/R = (FN - N)/R
+	lat = pi/2 -  2 atan(e^D) where e=base of natural logarithms, 2.7182818...
+	lon = [(E - FE)/R] + lonO
+
+Note that in these formulas, the parameter latitude of natural origin (*O) is not used. However for the Merctor (Spherical) method, for completeness in CRS labelling the EPSG dataset includes this parameter, which must have a value of zero.</gml:formula>
+   <gml:generalOperationParameter xlink:href="urn:ogc:def:parameter:EPSG::8801" />
+   <gml:generalOperationParameter xlink:href="urn:ogc:def:parameter:EPSG::8802" />
+   <gml:generalOperationParameter xlink:href="urn:ogc:def:parameter:EPSG::8806" />
+   <gml:generalOperationParameter xlink:href="urn:ogc:def:parameter:EPSG::8807" />
+</gml:OperationMethod>
