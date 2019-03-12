@@ -5,13 +5,18 @@ import json
 authurl = "https://www.arcgis.com/sharing/rest/oauth2/token/"
 
 # id and secret from registered AGOL application (see https://developers.arcgis.com/applications)
-j = json.loads(open("tokens.json").read())
+# IMPORTANT: there is some issue accessing feature services that are not public, even when a token is used 
+#    
+# Having difficulty accessing an app that is owned by someone else and not share with the public,
+# (but is shared with me), using the token generated from a registered app owned by me
 
-client_id = j["client_id"]
-client_secret = j["client_secret"]
+agol_tokens = json.loads(open("tokens.json").read())
+
+client_id = agol_tokens["client_id"]
+client_secret = agol_tokens["client_secret"]
 
 
-def get_token():
+def get_token(client_id, client_secret):
 
     params = {
         'client_id': client_id,
@@ -29,7 +34,7 @@ def get_token():
 
 
 # Jordan River LE Site Collect feature service URL
-url = r"https://services.arcgis.com/ZzrwjTRez6FJiOq4/arcgis/rest/services/survey123_b492e85bb3bc4d359078d12c23ef1076/FeatureServer/0/query"
+url = r"https://services.arcgis.com/ZzrwjTRez6FJiOq4/arcgis/rest/services/survey123_b492e85bb3bc4d359078d12c23ef1076_fieldworker/FeatureServer/0/query"
 
 payload = {
     'where': '1=1',
@@ -70,6 +75,9 @@ payload = {
     'f': 'pjson',
     'token': ''
     }
+
+
+payload['token'] = get_token(client_id, client_secret)
 
 r = requests.post(url, data=payload)
 
