@@ -7,8 +7,9 @@ authurl = "https://www.arcgis.com/sharing/rest/oauth2/token/"
 
 # id and secret from registered AGOL application (see https://developers.arcgis.com/applications)
 
-
-j = json.loads(open("tokens.json").read())  # tokens.json contains the client_id and client_secret strings
+# tokens.json contains the client_id and client_secret strings
+# stored in text file outside of version control
+j = json.loads(open("tokens.json").read())  
 
 client_id = j["client_id"]
 client_secret = j["client_secret"]
