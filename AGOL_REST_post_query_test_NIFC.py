@@ -3,12 +3,10 @@ import json
 import agol_token
 
 
-# url = r"https://services.arcgis.com/ZzrwjTRez6FJiOq4/ArcGIS/rest/services/2011_Helo_Tracks_All/FeatureServer/0/query"
-
-url = r"https://rmgsc-haws1.cr.usgs.gov/arcgis/rest/services/geomac_dyn/MapServer/0/query"  # geomac current fires
+url = r"https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/West_US_GACC_Areas/FeatureServer/0/query"
 
 payload = {
-    'where': "Region='SER'" ,
+    'where': '1=1' ,
     'objectIds': '',
     'time': '',
     'geometry': '',
@@ -24,7 +22,7 @@ payload = {
     'returnGeometry': 'false',
     'returnIdsOnly': 'false',
     'f': 'pjson',
-    'token': agol_token.get_token()
+    'token': agol_token.get_token('nifc')
     }
 
 r = requests.post(url, data=payload)
