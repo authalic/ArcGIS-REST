@@ -5,7 +5,7 @@ import json
 """
 get ArcGIS Online access token
 
-Note:  ArcGIS Online registered application 'client id' and 'client secret' 
+Note:  ArcGIS Online registered application 'client id' and 'client secret'
        stored as a JSON object in a text file outside of version control.
 """
 
@@ -14,7 +14,7 @@ def get_token(org='dnr'):   # 'dnr' or 'nifc'
 
     # client id and client secret are from a registered AGOL application in the
     # dnr and nifc AGOL organizations
-    #   see: https://developers.arcgis.com/applications 
+    #   see: https://developers.arcgis.com/applications
     #   and: https://developers.arcgis.com/rest/services-reference/generate-token.htm
 
     agol_tokens = json.loads(open('tokens.json').read())
@@ -24,7 +24,7 @@ def get_token(org='dnr'):   # 'dnr' or 'nifc'
 
     # URL of AGOL Token Endpoint OAuth REST service
     authurl = "https://www.arcgis.com/sharing/rest/oauth2/token/"
-    
+
     # parameters of GET request
     params = {
         'client_id': client_id,

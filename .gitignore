@@ -1,3 +1,4 @@
 tokens.json
+getresults.json
 .vscode/
-
+*.pyc
