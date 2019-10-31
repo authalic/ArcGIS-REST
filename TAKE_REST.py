@@ -2,13 +2,17 @@
 import json
 import requests
 
+# TODO
+# 1 Date fields from ArcGIS REST Services are in the ESRI format and should be converted to ANSI or text
+# 2 Vertex coordinates contain a crazy amount of digits beyond the decimal point
+
+
 # URL of feature service query service
 url=r'http://----/arcgis/rest/services/----/query/'
 
 recordCount = 101000 # record count: 109,204
 batchsize = 1000    # number of records requested per API call (1000 max)
 output_filename = 'getresults.json'
-
 
 # SQL WHERE clause for API request
 whereclause = """
