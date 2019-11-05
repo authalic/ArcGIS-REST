@@ -1,34 +1,17 @@
 
 import json
 import requests
-from urllib.parse import urljoin
 
+# URL of feature service query service
+url=r'https://services.arcgis.com/ZzrwjTRez6FJiOq4/arcgis/rest/services/Utah_Earthquake_Hazards/FeatureServer/2/query'
 
-# TODO
-# 1 Date fields from ArcGIS REST Services are in the ESRI format and should be converted to ANSI or text
-# 2 Vertex coordinates contain a crazy amount of digits beyond the decimal point
-
-
-# URL of feature service (path must end with '/')
-featserv_url = r'https://services.arcgis.com/ZzrwjTRez6FJiOq4/arcgis/rest/services/Utah_Urban_Tree_Inventory_Public_View/FeatureServer/0'
-output_filename = 'getresults.json'
-
-queryurl = urljoin(featserv_url, "query")
-
-recordCount = 50 # record count: 109,204
-batchsize = 10    # number of records requested per API call (usually 1000 max, but may be more)
+recordCount = 12 # record count: total records
+batchsize = 12   # number of records requested per API call (usually 1000 max)
+output_filename = 'faults_polyline_x.json'
 
 
 # SQL WHERE clause for API request
-
-whereclause = '1=1'
-
-# more complex example:
-# whereclause = """
-#     year_of_const LIKE '%1985%' OR
-#     year_of_const LIKE '%1986%' OR
-#     """
-
+whereclause = """1=1"""
 
 # URL query string key/value pairs
 payload = {
@@ -46,7 +29,7 @@ payload = {
     "returnTrueCurves": "false",
     "maxAllowableOffset": "",
     "geometryPrecision": "",
-    "outSR": "",
+    "outSR": "4326",
     "returnIdsOnly": "false",
     "returnCountOnly": "false",
     "orderByFields": "",
@@ -66,30 +49,27 @@ payload = {
     "f": "pjson"
 }
 
-
-
 # dictionary to store the results returned from the requests
 records = {}
 
+
 def getRecordCount():
-    services_url = r'https://services.arcgis.com/ZzrwjTRez6FJiOq4/arcgis/rest/services/Utah_Urban_Tree_Inventory_Public_View/FeatureServer/0?f=pjson'
     recordpayload = payload
     recordpayload["returnCountOnly"] = "true"
     recordpayload["returnGeometry"] = "false"
 
-    r = requests.get(services_url, params=recordpayload)   #Response 400:  BAD REQUEST?
+    r = requests.get(url, params=payload)
     records = json.loads(r.text)
 
     return records["maxRecordCount"]
-
-recc = getRecordCount()
-
-
 
 
 # request the total number of records (recordCount)
 # in increments of max requests permitted per API call (batchsize)
 for offset in range(0, recordCount, batchsize):
+
+    # Note:  This paging loop could also be done with checking "exceededTransferLimit" attribute
+    # value of "true" means there are still records avaialable in the next offset
 
     print(str(offset) + " - " + str(offset + batchsize))
 
@@ -106,9 +86,6 @@ for offset in range(0, recordCount, batchsize):
         # each subsequent request, append only the records to dict
         j = json.loads(r.text)
         records["features"] += j["features"]
-
-
-# truncate (round) the number of decimal places stored for each coordinate
 
 def roundgeom(records, roundlen):
     '''
@@ -154,10 +131,9 @@ def roundgeom(records, roundlen):
         pass
 
 
-
 # write the dictionary of results to a JSON text file
 with open(output_filename, 'w') as file:
-    roundgeom(records, 6) # round to 6 decimal places
-    file.write(json.dumps(records))  
+    roundgeom(records, 6)
+    file.write(json.dumps(records))
 
 print("done")
