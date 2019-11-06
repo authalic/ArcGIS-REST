@@ -9,14 +9,11 @@ from urllib.parse import urljoin
 # 2 Vertex coordinates contain a crazy amount of digits beyond the decimal point
 
 
-# URL of feature service (path must end with '/')
+# URL of feature service (path must NOT end with '/')
 featserv_url = r'https://services.arcgis.com/ZzrwjTRez6FJiOq4/arcgis/rest/services/Utah_Urban_Tree_Inventory_Public_View/FeatureServer/0'
 output_filename = 'getresults.json'
 
 queryurl = urljoin(featserv_url, "query")
-
-recordCount = 50 # record count: 109,204
-batchsize = 10    # number of records requested per API call (usually 1000 max, but may be more)
 
 
 # SQL WHERE clause for API request
@@ -57,7 +54,7 @@ payload = {
     "gdbVersion": "",
     "returnDistinctValues": "false",
     "resultOffset": "",               # starting point of record request
-    "resultRecordCount": batchsize,   # number of records requested (1000 max)
+    "resultRecordCount": "",          # max number of records per API request (usually 1000)
     "queryByDistance": "",
     "returnExtentsOnly": "false",
     "datumTransformation": "",
@@ -67,48 +64,56 @@ payload = {
 }
 
 
-
-# dictionary to store the results returned from the requests
-records = {}
-
 def getRecordCount():
-    services_url = r'https://services.arcgis.com/ZzrwjTRez6FJiOq4/arcgis/rest/services/Utah_Urban_Tree_Inventory_Public_View/FeatureServer/0?f=pjson'
-    recordpayload = payload
-    recordpayload["returnCountOnly"] = "true"
-    recordpayload["returnGeometry"] = "false"
+    url = urljoin(featserve_url, r'/query')
+    payload = {
+        'where': '1=1',
+        'returnCountOnly': 'true',
+        'f': 'pjson'
+    }
+    r = requests.get(url, params=payload)
+    records = json.loads(r.text)
 
-    r = requests.get(services_url, params=recordpayload)   #Response 400:  BAD REQUEST?
+    return records["count"]
+
+
+def getMaxRecordCount():
+    services_url = urljoin(featserv_url, r'?f=pjson')
+    r = requests.get(services_url)
     records = json.loads(r.text)
 
     return records["maxRecordCount"]
 
-recc = getRecordCount()
 
+def getRecords():
+    # request the total number of records (recordCount)
+    # in increments of max requests permitted per API call (batchsize)
+    
+    recordCount = getRecordCount # total record count in feature service
+    batchsize = getMaxRecordCount    # number of records requested per API call (usually 1000 max, but may be more)
+    payload["resultRecordCount"] = batchsize
+    
 
+    for offset in range(0, recordCount, batchsize):
 
+        print(str(offset) + " - " + str(offset + batchsize))
 
-# request the total number of records (recordCount)
-# in increments of max requests permitted per API call (batchsize)
-for offset in range(0, recordCount, batchsize):
+        # set the starting point for the next batch of records requested
+        payload["resultOffset"] = offset
 
-    print(str(offset) + " - " + str(offset + batchsize))
+        # send the GET request to the REST endpoint
+        r = requests.get(url, params=payload)
 
-    # set the starting point for the next batch of records requested
-    payload["resultOffset"] = offset
+        if offset == 0:
+            # first API request: save complete JSON response as dict
+            records = json.loads(r.text)
+        else:
+            # each subsequent request, append only the records to dict
+            j = json.loads(r.text)
+            records["features"] += j["features"]
+    
+    return records
 
-    # send the GET request to the REST endpoint
-    r = requests.get(url, params=payload)
-
-    if offset == 0:
-        # first API request: save complete JSON response as dict
-        records = json.loads(r.text)
-    else:
-        # each subsequent request, append only the records to dict
-        j = json.loads(r.text)
-        records["features"] += j["features"]
-
-
-# truncate (round) the number of decimal places stored for each coordinate
 
 def roundgeom(records, roundlen):
     '''
@@ -154,10 +159,13 @@ def roundgeom(records, roundlen):
         pass
 
 
+def writeRecords(records):
+    # write the dictionary of results to a JSON text file
+    with open(output_filename, 'w') as file:
+        roundgeom(records, 6) # round to 6 decimal places
+        file.write(json.dumps(records))  
 
-# write the dictionary of results to a JSON text file
-with open(output_filename, 'w') as file:
-    roundgeom(records, 6) # round to 6 decimal places
-    file.write(json.dumps(records))  
+records = getRecords()
+writeRecords(records) 
 
 print("done")
