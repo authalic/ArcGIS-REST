@@ -87,6 +87,19 @@ See [ESRI Feature Service Documentation](https://developers.arcgis.com/rest/serv
   'distance': '50000',
   'units': 'esriSRUnit_Meter',
   'inSR': '32612',  # WGS 84 UTM zone 12
+  
+* Alternate geometry format for point
+  ```
+  'geometry': '{"x" : 423500, "y" : 4500000}',
+  'geometry': "{'x' : 423500, 'y' : 4500000}",
+* Spatial Filter:  Polygon (State of Utah boundary, approximate)
+  ```
+  'geometry': "{'rings': [[[-114.2,42.2],[-110.8,42.2],[-110.8,41.2],[-108.8,41.2],[-108.8,36.8],[-114.2,36.8],[-114.2,42.2]]]}",
+  'geometryType': 'esriGeometryPolygon ',
+  'spatialRel': 'esriSpatialRelIntersects',
+  'distance': '',
+  'units': 'esriSRUnit_Meter',
+  'inSR': '4326',
 
 ## SQL Statistics (needs more work)
 * see documentation: ArcGIS REST API Services Reference [Query](https://developers.arcgis.com/rest/services-reference/query-feature-service-layer-.htm)
