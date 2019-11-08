@@ -69,6 +69,24 @@ See [ESRI Feature Service Documentation](https://developers.arcgis.com/rest/serv
   * `html` and `json`
 * use `json` for spatial data
   * output can be imported directly into GIS software
+### Spatial Filter queries
+* Spatial Filter:  Envelope
+    ```
+    'geometry': '-112,40.5,-111.0,41.5',     #xmin, ymin, xmax, ymax
+    'geometryType': 'esriGeometryEnvelope',
+    'spatialRel': 'esriSpatialRelIntersects',
+    'distance': '',
+    'units': 'esriSRUnit_Meter',
+    'inSR': '4326',
+
+* Spatial Filter:  Point, (50,000 meter distance from)
+  ```
+  'geometry': '426500,4500000',
+  'geometryType': 'esriGeometryPoint',
+  'spatialRel': 'esriSpatialRelIntersects',
+  'distance': '50000',
+  'units': 'esriSRUnit_Meter',
+  'inSR': '32612',  # WGS 84 UTM zone 12
 
 ## SQL Statistics (needs more work)
 * see documentation: ArcGIS REST API Services Reference [Query](https://developers.arcgis.com/rest/services-reference/query-feature-service-layer-.htm)
