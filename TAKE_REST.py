@@ -47,7 +47,8 @@ payload = {
     "datumTransformation": "",
     "parameterValues": "",
     "rangeValues": "",
-    "f": "pjson"
+    "f": "pjson",
+    "token": ""  # see the agol_token.py script for info on how to set this value
 }
 
 
@@ -167,7 +168,7 @@ def writeRecords(records):
         #     # number of decimal places
         #     roundgeom(records, 6) 
     
-        file.write(json.dumps(records))  
+        file.write(json.dumps(records))
 
 
 records = getRecords(featserv_url, payload)
