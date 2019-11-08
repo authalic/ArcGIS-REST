@@ -61,7 +61,7 @@ See [ESRI Feature Service Documentation](https://developers.arcgis.com/rest/serv
   * 3rd request: `'resultOffset': 2000` and `'resultRecordCount': 1000` ...
   * 15th request:`'resultOffset': 14000` and `'resultRecordCount': 1000`
 ### `geometryPrecision`
-* according to ESRI documentation, this is supposed to allow for specifying the number of decimal places in coordinates in the feature geometry returned from feature service
+* allows for specifying the number of decimal places in coordinates in the feature geometry returned from feature service
   * doesn't seem to work when tested on the ArcGIS Online geocoding service, but that service might not be returning a Geometry GeoJSON object
 ### `f`
 * specifies the format of the response
