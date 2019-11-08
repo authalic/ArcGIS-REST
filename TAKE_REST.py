@@ -1,4 +1,3 @@
-
 import json
 import requests
 from urllib.parse import urljoin
@@ -6,26 +5,14 @@ from urllib.parse import urljoin
 
 # TODO
 # 1 Date fields from ArcGIS REST Services are in the ESRI format and should be converted to ANSI or text
-# 2 Vertex coordinates contain a crazy amount of digits beyond the decimal point
 
-
-# URL of feature service (path must NOT end with '/')
-featserv_url = r'https://services.arcgis.com/ZzrwjTRez6FJiOq4/arcgis/rest/services/Utah_Urban_Tree_Inventory_Public_View/FeatureServer/0'
+# URL of feature service
+featserv_url = r'https://services.arcgis.com/ZzrwjTRez6FJiOq4/arcgis/rest/services/Uintah_Co_Fires/FeatureServer/0'
 output_filename = 'getresults.json'
-
-queryurl = urljoin(featserv_url, "query")
 
 
 # SQL WHERE clause for API request
-
 whereclause = '1=1'
-
-# more complex example:
-# whereclause = """
-#     year_of_const LIKE '%1985%' OR
-#     year_of_const LIKE '%1986%' OR
-#     """
-
 
 # URL query string key/value pairs
 payload = {
@@ -39,11 +26,11 @@ payload = {
     "spatialRel": "esriSpatialRelIntersects",
     "relationParam": "",
     "outFields": "*",
-    "returnGeometry": "true",
+    "returnGeometry": "false",
     "returnTrueCurves": "false",
     "maxAllowableOffset": "",
-    "geometryPrecision": "",
-    "outSR": "",
+    "geometryPrecision": "6",  # number of decimal places in the x/y coordinates
+    "outSR": "4326",
     "returnIdsOnly": "false",
     "returnCountOnly": "false",
     "orderByFields": "",
@@ -64,45 +51,54 @@ payload = {
 }
 
 
-def getRecordCount():
-    url = urljoin(featserve_url, r'/query')
+def getRecordCount(featserv_url):
+    query_url = featserv_url.strip('/') + r'/query'
+
     payload = {
         'where': '1=1',
         'returnCountOnly': 'true',
         'f': 'pjson'
     }
-    r = requests.get(url, params=payload)
+    r = requests.get(query_url, params=payload)
     records = json.loads(r.text)
 
-    return records["count"]
+    return int(records["count"])
 
 
-def getMaxRecordCount():
-    services_url = urljoin(featserv_url, r'?f=pjson')
+def getMaxRecordCount(featserv_url):
+    services_url = featserv_url.strip('/') + r'?f=pjson'
+
     r = requests.get(services_url)
     records = json.loads(r.text)
 
-    return records["maxRecordCount"]
+    return int(records["maxRecordCount"])
 
 
-def getRecords():
+def getRecords(featserv_url, payload):
     # request the total number of records (recordCount)
     # in increments of max requests permitted per API call (batchsize)
+
+    query_url = featserv_url.strip('/') + r'/query'
     
-    recordCount = getRecordCount # total record count in feature service
-    batchsize = getMaxRecordCount    # number of records requested per API call (usually 1000 max, but may be more)
+    recordcount = getRecordCount(featserv_url)  # total record count in feature service
+    batchsize = getMaxRecordCount(featserv_url) # number of records requested per API call (usually 1000 max)
     payload["resultRecordCount"] = batchsize
+
+    print(recordcount, "total records")
     
+    for offset in range(0, recordcount, batchsize):
 
-    for offset in range(0, recordCount, batchsize):
+        if offset + batchsize <= recordcount:
+            print(str(offset) + " - " + str(offset + batchsize))
+        else:
+            print(str(offset) + " - " + str(recordcount))
 
-        print(str(offset) + " - " + str(offset + batchsize))
 
         # set the starting point for the next batch of records requested
         payload["resultOffset"] = offset
 
         # send the GET request to the REST endpoint
-        r = requests.get(url, params=payload)
+        r = requests.get(query_url, params=payload)  # SHOULD BE QUERY URL
 
         if offset == 0:
             # first API request: save complete JSON response as dict
@@ -117,6 +113,9 @@ def getRecords():
 
 def roundgeom(records, roundlen):
     '''
+    Performs the same task as the "geometryPrecision" value in the request payload
+    (most of the time)  geometryPrecision doesn't appear to work with geoprocessing services
+
     Removes extraneous digits from the decimal fraction in GeoJSON (x,y) point coordinates.
       records = JSON object containing any properly formatted GeoJSON geometry.
       roundlen = number of decimal places to which to round the decimal values
@@ -126,13 +125,11 @@ def roundgeom(records, roundlen):
     # loop through each geometry in each feature
     features = records["features"]  # features is a list of dicts, each dict is a feature
 
-
     if records["geometryType"] == "esriGeometryPoint":
 
         for pt_feat in features:
             pt_feat['geometry']['x'] = round(pt_feat['geometry']['x'], roundlen)
             pt_feat['geometry']['y'] = round(pt_feat['geometry']['y'], roundlen)
-
 
     elif records["geometryType"] == "esriGeometryPolyline":
 
@@ -141,7 +138,6 @@ def roundgeom(records, roundlen):
                 for segment in path:
                     segment[0] = round(segment[0], roundlen)
                     segment[1] = round(segment[1], roundlen)
-
 
     elif records["geometryType"] == "esriGeometryPolygon":
 
@@ -155,17 +151,26 @@ def roundgeom(records, roundlen):
         # geometry type is either esriGeometryMultipoint or esriGeometryEnvelope
         # implement multipoint later, perhaps
         # envelope never happens
-
         pass
 
 
 def writeRecords(records):
     # write the dictionary of results to a JSON text file
     with open(output_filename, 'w') as file:
-        roundgeom(records, 6) # round to 6 decimal places
+        # round off the geometry values to specified number of decimal places
+        # this seems to be unnecessary, with feature services
+        # use "geometryPrecision" key in the requests payload
+        # this function may be ncessary when using other services, i.e. geocoding
+
+        # if payload["returnGeometry"].lower() == 'true':
+        #     # if geometry was requested, round the x/y coordinates to specified
+        #     # number of decimal places
+        #     roundgeom(records, 6) 
+    
         file.write(json.dumps(records))  
 
-records = getRecords()
+
+records = getRecords(featserv_url, payload)
 writeRecords(records) 
 
 print("done")

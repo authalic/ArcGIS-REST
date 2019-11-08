@@ -12,6 +12,7 @@ resturl = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/f
 payload = {
     'f' : 'json',
     'singleLine': geocode,
+    'outSR': '4326',
     'outFields' : 'Match_addr,Addr_type'
     }
 
