@@ -1,4 +1,4 @@
-# ArcGIS-REST
+# ArcGIS-REST Feature Service
 Python scripts using Requests module and ArcGIS REST services.
 
 ## Using Authentication
@@ -40,6 +40,7 @@ See [ESRI Feature Service Documentation](https://developers.arcgis.com/rest/serv
 * spatial reference of the returned geometry features
 * can be an empty string, in which case, according to ESRI documentation, the SRID returned is "the same as the map"
   * typically `SRID: 3857 - WGS 84 Web (pseudo) Mercator`
+  * or `SRID: 4326 WGS 84`
 * can be specified as a WKID number (in a string format)
   * `'outSR': '4326',  # 4326 = WGS 84 lat/lon decimal degrees`
   * `'outSR': '32612', # 32612 = WGS 84 UTM zone 12`
@@ -66,9 +67,12 @@ See [ESRI Feature Service Documentation](https://developers.arcgis.com/rest/serv
 ### `f`
 * specifies the format of the response
 * valid options are:
-  * `html` and `json`
+  * `html`, `pjson`, and `json`
+* default response type is `html`
 * use `json` for spatial data
   * output can be imported directly into GIS software
+* `pjson` is prettified `json` for debugging
+  * more human-readable, but results in larger data sizes and longer processing times
 ### Spatial Filter queries
 * Spatial Filter:  Envelope
     ```
@@ -104,3 +108,28 @@ See [ESRI Feature Service Documentation](https://developers.arcgis.com/rest/serv
 ## SQL Statistics (needs more work)
 * see documentation: ArcGIS REST API Services Reference [Query](https://developers.arcgis.com/rest/services-reference/query-feature-service-layer-.htm)
 
+
+# ArcGIS REST MapServer Service
+* Sample Layer: [National Inventory of Dams](https://geohealth.hhs.gov/arcgis2/rest/services/National_Inventory_of_Dams__NID_Public/MapServer)
+* Dynamic Layers
+  * change the symbol representation of a Feature Layer
+  ```
+  [{
+    "source": {
+      "type": "mapLayer",
+      "mapLayerId": 0
+    },
+    "definitionExpression": "HAZARD='H'",
+    "drawingInfo": {
+      "renderer": {
+        "type": "simple",
+        "symbol": {
+          "color": [255,0,0,255],
+          "size": 20,
+          "type": "esriSMS",
+          "style": "esriSMSCross"
+        }
+      }
+    }
+  }]
+  ```
