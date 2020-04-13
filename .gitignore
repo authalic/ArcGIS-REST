@@ -1,5 +1,3 @@
-tokens.json
-getresults.json
-spatialfilter.json
+*.json
 .vscode/
 *.pyc

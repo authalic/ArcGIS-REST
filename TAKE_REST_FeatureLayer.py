@@ -10,11 +10,11 @@ import requests
 
 # Error when publishing* json as feature service on AGOL
 #  *"Add an item"
-'''
-Error in adding file item:
-Error while analyzing GeoJson 'mapservice.json'
-GeoJson doesn't have 'type'
-'''
+
+#  Error in adding file item:
+#  Error while analyzing GeoJson 'mapservice.json'
+#  GeoJson doesn't have 'type'
+
 
 
 # URL of feature service
@@ -96,20 +96,24 @@ def getRecords(featserv_url, payload):
     # request the total number of records (recordCount)
     # in increments of max requests permitted per API call (batchsize)
 
+    # build the URL for the query operation endpoint
     query_url = featserv_url.strip('/') + r'/query'
 
     # total record count in feature service
     recordcount = getRecordCount(featserv_url)
-
-    # number of records requested per API call (usually 1000 max)
-    batchsize = getMaxRecordCount(featserv_url)
-
-    payload["resultRecordCount"] = batchsize
-
     print(recordcount, "total records")
 
+    # get max number of records requestable per API call (usually 1000 max)
+    batchsize = getMaxRecordCount(featserv_url)
+
+    # update that value in the payload dict
+    payload["resultRecordCount"] = batchsize
+
+    # request all of the records from Feature Service
+    # use multiple requests, if recordcount exceeds batchsize
     for offset in range(0, recordcount, batchsize):
 
+        # print the current range of records being requested
         if offset + batchsize <= recordcount:
             print(str(offset) + " - " + str(offset + batchsize))
         else:
@@ -119,13 +123,16 @@ def getRecords(featserv_url, payload):
         payload["resultOffset"] = offset
 
         # send the GET request to the REST endpoint
-        r = requests.get(query_url, params=payload)  # SHOULD BE QUERY URL
+        r = requests.get(query_url, params=payload)
 
+        # build up the records in a dict
         if offset == 0:
             # first API request: save complete JSON response as dict
-            records = json.loads(r.text)
+            # i.e. fields, geometryType, and other JSON structure in response
+            records = {"type": "FeatureCollection"}
+            records.update(json.loads(r.text))
         else:
-            # each subsequent request, append only the records to dict
+            # each subsequent request, append only the features to dict
             j = json.loads(r.text)
             records["features"] += j["features"]
 
@@ -199,6 +206,18 @@ def writeRecords(records):
 
 
 records = getRecords(featserv_url, payload)
+
+# before writing records, add the "type" values required by Esri/AGOL
+# GeoJSON supports the following geometry types:
+
+    # Point
+    # LineString
+    # Polygon
+    # MultiPoint
+    # MultiLineString
+    # MultiPolygon
+
+
 writeRecords(records)
 
 print("done")

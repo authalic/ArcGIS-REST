@@ -1,10 +1,11 @@
 import json
 import requests
-from urllib.parse import urljoin
+# from urllib.parse import urljoin
 
 
 # TODO
-# 1 Date fields from ArcGIS REST Services are in the ESRI format and should be converted to ANSI or text
+# 1 Date fields from ArcGIS REST Services are in the ESRI format
+# and should be converted to ANSI or text
 
 # URL of feature service
 featserv_url = r'https://services.arcgis.com/ZzrwjTRez6FJiOq4/arcgis/rest/services/Uintah_Co_Fires/FeatureServer/0'
@@ -29,7 +30,7 @@ payload = {
     "returnGeometry": "false",
     "returnTrueCurves": "false",
     "maxAllowableOffset": "",
-    "geometryPrecision": "6",  # number of decimal places in the x/y coordinates
+    "geometryPrecision": "6",  # number of decimal places in x/y coordinates
     "outSR": "4326",
     "returnIdsOnly": "false",
     "returnCountOnly": "false",
@@ -41,14 +42,15 @@ payload = {
     "gdbVersion": "",
     "returnDistinctValues": "false",
     "resultOffset": "",               # starting point of record request
-    "resultRecordCount": "",          # max number of records per API request (usually 1000)
+    # max number of records per API request (usually 1000)
+    "resultRecordCount": "",
     "queryByDistance": "",
     "returnExtentsOnly": "false",
     "datumTransformation": "",
     "parameterValues": "",
     "rangeValues": "",
     "f": "pjson",
-    "token": ""  # see the agol_token.py script for info on how to set this value
+    "token": ""  # see: agol_token.py script for info on how to set this value
 }
 
 
@@ -80,20 +82,21 @@ def getRecords(featserv_url, payload):
     # in increments of max requests permitted per API call (batchsize)
 
     query_url = featserv_url.strip('/') + r'/query'
-    
-    recordcount = getRecordCount(featserv_url)  # total record count in feature service
-    batchsize = getMaxRecordCount(featserv_url) # number of records requested per API call (usually 1000 max)
+
+    # total record count in feature service
+    recordcount = getRecordCount(featserv_url)
+    # number of records requested per API call (usually 1000 max)
+    batchsize = getMaxRecordCount(featserv_url)
     payload["resultRecordCount"] = batchsize
 
     print(recordcount, "total records")
-    
+
     for offset in range(0, recordcount, batchsize):
 
         if offset + batchsize <= recordcount:
             print(str(offset) + " - " + str(offset + batchsize))
         else:
             print(str(offset) + " - " + str(recordcount))
-
 
         # set the starting point for the next batch of records requested
         payload["resultOffset"] = offset
@@ -108,29 +111,34 @@ def getRecords(featserv_url, payload):
             # each subsequent request, append only the records to dict
             j = json.loads(r.text)
             records["features"] += j["features"]
-    
+
     return records
 
 
 def roundgeom(records, roundlen):
     '''
-    Performs the same task as the "geometryPrecision" value in the request payload
-    (most of the time)  geometryPrecision doesn't appear to work with geoprocessing services
+    Performs the same task as the "geometryPrecision" value in the request
+    payload (most of the time)  geometryPrecision doesn't appear to work
+    with geoprocessing services
 
-    Removes extraneous digits from the decimal fraction in GeoJSON (x,y) point coordinates.
+    Removes extraneous digits from the decimal fraction in GeoJSON (x,y) point
+    coordinates.
       records = JSON object containing any properly formatted GeoJSON geometry.
       roundlen = number of decimal places to which to round the decimal values
     Note: z and m values are not affected
     '''
 
     # loop through each geometry in each feature
-    features = records["features"]  # features is a list of dicts, each dict is a feature
+    # features is a list of dicts, each dict is a feature
+    features = records["features"]
 
     if records["geometryType"] == "esriGeometryPoint":
 
         for pt_feat in features:
-            pt_feat['geometry']['x'] = round(pt_feat['geometry']['x'], roundlen)
-            pt_feat['geometry']['y'] = round(pt_feat['geometry']['y'], roundlen)
+            pt_feat['geometry']['x'] = round(
+                pt_feat['geometry']['x'], roundlen)
+            pt_feat['geometry']['y'] = round(
+                pt_feat['geometry']['y'], roundlen)
 
     elif records["geometryType"] == "esriGeometryPolyline":
 
@@ -149,7 +157,7 @@ def roundgeom(records, roundlen):
                     ringpath[1] = round(ringpath[1], roundlen)
 
     else:
-        # geometry type is either esriGeometryMultipoint or esriGeometryEnvelope
+        # geometryType is either esriGeometryMultipoint or esriGeometryEnvelope
         # implement multipoint later, perhaps
         # envelope never happens
         pass
@@ -161,17 +169,18 @@ def writeRecords(records):
         # round off the geometry values to specified number of decimal places
         # this seems to be unnecessary, with feature services
         # use "geometryPrecision" key in the requests payload
-        # this function may be ncessary when using other services, i.e. geocoding
+        # this function may be ncessary when using other services,
+        # i.e. geocoding
 
         # if payload["returnGeometry"].lower() == 'true':
-        #     # if geometry was requested, round the x/y coordinates to specified
-        #     # number of decimal places
-        #     roundgeom(records, 6) 
-    
+        #  if geometry was requested, round the x/y coordinates
+        #  to specified number of decimal places
+        #     roundgeom(records, 6)
+
         file.write(json.dumps(records))
 
 
 records = getRecords(featserv_url, payload)
-writeRecords(records) 
+writeRecords(records)
 
 print("done")
