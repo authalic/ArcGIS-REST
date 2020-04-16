@@ -1,7 +1,6 @@
 import requests
 import json
 
-
 """
 get Gold Systems access token
 """
@@ -9,18 +8,15 @@ get Gold Systems access token
 
 def get_token(org='gold'):
 
-    # client id and client secret are from a registered AGOL application in the
-    # dnr and nifc AGOL organizations
-    #   see: https://developers.arcgis.com/applications
-    #   and: https://developers.arcgis.com/rest/services-reference/generate-token.htm
-
     gold_tokens = json.loads(open('tokens.json').read())
 
     client_id = gold_tokens[org]['id']
     client_secret = gold_tokens[org]['secret']
 
     # URL of Gold Systems Endpoint service
+    # after the update: "https://ut.firebilling.org/fire/s/api/token"
     authurl = "https://fbs.utah.gov/fire/s/api/token"
+
 
     # parameters of GET request
     params = {
