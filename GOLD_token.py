@@ -17,21 +17,25 @@ def get_token(org='gold'):
     # after the update: "https://ut.firebilling.org/fire/s/api/token"
     authurl = "https://fbs.utah.gov/fire/s/api/token"
 
-
     # parameters of GET request
     params = {
         'username': client_id,
         'password': client_secret
     }
 
-    # send request to AGOL Token REST service
+    # send request to Token REST service
     request = requests.post(authurl, data=params)
 
     # unpack the request response to json
     # extract and return the access token from the API response
-    # note: "access token" is a specific ArcGIS Online JSON response key, and
-    # has been removed here
     r = request.json()
+
+    # response format:
+    # {
+    #     'success': True,
+    #     'messages': [],
+    #     'token': 'eym....scGtxXjts'
+    # }
 
     return r['token']
 
