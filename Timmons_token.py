@@ -2,20 +2,19 @@ import requests
 import json
 
 """
-get Gold Systems access token
+get Timmons access token
 """
 
 
-def get_token(org='gold'):
+def get_token(org='timmons'):
 
     gold_tokens = json.loads(open('tokens.json').read())
 
     client_id = gold_tokens[org]['id']
     client_secret = gold_tokens[org]['secret']
 
-    # URL of Gold Systems Endpoint service
-    # after the update: "https://ut.firebilling.org/fire/s/api/token"
-    authurl = "https://fbs.utah.gov/fire/s/api/token"
+    # Login URL
+    authurl = "https://maps3.timmons.com/arcgis/rest/login"
 
     # parameters of GET request
     params = {
@@ -29,13 +28,6 @@ def get_token(org='gold'):
     # unpack the request response to json
     # extract and return the access token from the API response
     r = request.json()
-
-    # response format:
-    # {
-    #     'success': True,
-    #     'messages': [],
-    #     'token': 'eym....scGtxXjts'
-    # }
 
     return r['token']
 

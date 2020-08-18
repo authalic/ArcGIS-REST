@@ -1,20 +1,21 @@
 import requests
 import json  # needed to prettify the json, but not to convert response to json
-import GOLD_token
+import GOLD_Systems_token
 
 
 # FBS API Documentation
-# https://fbs.utah.gov/fire/s/api        (going away soon)
-# https://ut.firebilling.org/fire/s/api  (new)
+# https://ut.firebilling.org/fire/s/api
 
 # URL of REST service
-# resturl = "https://ut.firebilling.org/fire/s/api/incidents" (new)
-resturl = "https://fbs.utah.gov/fire/s/api/incidents" # (going away soon)
+resturl = "https://ut.firebilling.org/fire/s/api/incidents"
+
+# Acceptance URL
+# resturl = "https://testut.firebilling.org/fire/s/api/incidents"
 
 
 # HTTP Headers: required for authorization
 headers = {
-    'Authorization': GOLD_token.get_token()
+    'Authorization': GOLD_Systems_token.get_token()
 }
 # URL parameters
 # Options and examples
@@ -27,8 +28,8 @@ headers = {
     # 'modifiedTo':   '2020-04-15T06:59:59.000Z'
 
 payload = {
-    'modifiedFrom': '2020-04-01T07:00:00.000Z',
-    'modifiedTo':   '2020-04-15T06:59:59.000Z'
+    'modifiedFrom': '2020-07-15T07:00:00.000Z',
+    'modifiedTo':   '2020-07-22T05:59:59.000Z'
     }
 
 
@@ -36,7 +37,8 @@ payload = {
 r = requests.get(resturl, headers=headers, params=payload)
 
 # extract response as JSON
-j = r.json()
+if r:
+    j = r.json()
 
-# print and prettify the dict using the json.dumps() method
-print(json.dumps(j, sort_keys=True, indent=4))
+    # print and prettify the dict using the json.dumps() method
+    print(json.dumps(j, sort_keys=True, indent=4))
